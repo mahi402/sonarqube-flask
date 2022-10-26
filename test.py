@@ -1,37 +1,28 @@
-from flask_webtest import TestApp
-import pytest
-from app import app as current_app
+import unittest
+from urllib import response
+from app import app 
+from app import fib
 
+class flasktest(unittest.TestCase):
 
-@pytest.fixture
-def testapp(app):
-    return TestApp(app)
+    def test_index(self):
+        tester = app.test_client(self)
+        response = tester.get("/")
+        statuscode = response.status_code
+        self.assertEqual(statuscode,200)
+    def test_index_content(self):
+        tester = app.test_client(self)
+        response = tester.get("/")
+        self.assertEqual(response.content_type,"text/html; charset=utf-8")
+    def test_index_data(self):
+        tester = app.test_client(self)
+        response = tester.get("/")
+        print(response)
+        self.assertTrue(b'Hello World' in response.data)
 
+class Testfib(unittest.TestCase):
+    def test_fib(self):
+        self.assertEqual(fib(1),1)
 
-_app = None
-
-
-@pytest.yield_fixture(scope='session')
-def app():
-    global _app
-    if not _app:
-        _app = current_app
-    with _app.app_context():
-        yield _app
-
-
-class TestFlask(object):
-
-    @pytest.fixture(autouse=True)
-    def setup(self, testapp):
-        self.testapp = testapp
-
-    def test_comic(self):
-        res = self.comic()
-        assert res.status_code == 200
-
-    def comic(self):
-        return self.testapp.get(
-            "/comic",
-            expect_errors=True,
-        )
+if __name__ == "__main__":
+   unittest.main()
